@@ -1,0 +1,14 @@
+.idea/
+Fridge.iml
+out/
+bin
+.project
+.settings
+.classpath
+
+# Ignore Gradle project-specific cache directory
+.gradle
+app
+
+# Ignore Gradle build output directory
+build

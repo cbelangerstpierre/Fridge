@@ -1,0 +1,19 @@
+plugins {
+    id 'java'
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'com.cbelangerstpierre.FridgeProject'
+        )
+    }
+}
+
+group = 'com.cbelangerstpierre'
+description = 'Epic fridge'
+java.sourceCompatibility = JavaVersion.VERSION_16
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
