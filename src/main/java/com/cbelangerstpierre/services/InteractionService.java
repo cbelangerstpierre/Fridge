@@ -1,9 +1,5 @@
 package com.cbelangerstpierre.services;
 
-import com.cbelangerstpierre.Fridge;
-import com.cbelangerstpierre.container.Container;
-import com.cbelangerstpierre.food.*;
-
 import java.time.LocalDate;
 import java.time.chrono.IsoChronology;
 import java.time.format.DateTimeFormatter;
@@ -11,8 +7,21 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Scanner;
+
+import com.cbelangerstpierre.Fridge;
+import com.cbelangerstpierre.container.Container;
+import com.cbelangerstpierre.food.AnimalProduct;
+import com.cbelangerstpierre.food.Condiment;
+import com.cbelangerstpierre.food.Food;
+import com.cbelangerstpierre.food.FoodType;
+import com.cbelangerstpierre.food.Fruit;
+import com.cbelangerstpierre.food.Grain;
+import com.cbelangerstpierre.food.Liquid;
+import com.cbelangerstpierre.food.Other;
+import com.cbelangerstpierre.food.Vegetable;
 
 
 public class InteractionService {
@@ -139,34 +148,91 @@ public class InteractionService {
     }
 
     public void seeFridgeContentContainerType(Fridge fridge) {
-        ArrayList<Container> containers = new ArrayList<>(0);
+        final ArrayList<Container> containers = fridge.getContainers();
 
-        containers.addAll(fridge.getPalettes());
-
-        containers.addAll(fridge.getDrawers());
-
-        containers.add(fridge.getDoor());
-        containers.add(fridge.getFreezer());
-
-        System.out.println("Which type of content do you want to see? (Please enter the integer corresponding)\n");
-        System.out.println("1 - See content by food type");
+        System.out.println("\n\nWhich type of content do you want to see? (Please enter the integer corresponding)\n");
+        System.out.println("1 - See content by the type of food");
 
         for (int i = 0; i < containers.size(); i++)
             System.out.printf("%d - See content of the %s\n", i + 2, containers.get(i).toString().toLowerCase());
 
-        System.out.print("Your answer : ");
+        System.out.print("\nYour answer : ");
 
         int input = validOption(1, containers.size() + 1);
 
         if (input == 1) {
             seeFridgeContentFoodType(fridge);
         } else {
-            System.out.println(containers.get(input - 2).getContentInfo());
+            // Print container content
+            StringBuilder ContainerTypeContentOutput = new StringBuilder();
+            Container selectedContainer = containers.get(input - 2);
+
+            if (selectedContainer.getContent().size() == 0) {
+                ContainerTypeContentOutput.append("\n\nThere's nothing in the ")
+                    .append(selectedContainer.toString().toLowerCase())
+                    .append(".");
+            } else {
+                ContainerTypeContentOutput.append("\n\nHere's the content of the ").append(toString()).append(":\n");
+                for (Food food : selectedContainer.getContent()) {
+                    ContainerTypeContentOutput.append("\n- ")
+                        .append(food.getName())
+                        .append(" of type '")
+                        .append(food.getType())
+                        .append("'")
+                        .append(" that expires the ")
+                        .append(food.getExpirationDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)));
+                }
+            }
+            System.out.println(ContainerTypeContentOutput.append("\n\n").toString());
         }
     }
 
     private void seeFridgeContentFoodType(Fridge fridge) {
-        //TODO
+        ArrayList<FoodType> foods = new ArrayList<>(0);
+
+        foods.addAll(Arrays.asList(FoodType.values()));
+
+        System.out.println("\n\nWhich type of content do you want to see? (Please enter the integer corresponding)\n");
+        System.out.println("1 - See content by the type of container");
+
+        String str = "every";
+
+        for (int i = 0; i < foods.size(); i++){
+            if (foods.get(i).toString().toLowerCase() == "others") {str = "";}
+            System.out.printf("%d - See %s %s\n", i + 2, str, foods.get(i).toString().toLowerCase());
+        }
+
+        System.out.print("\nYour answer : ");
+
+        int input = validOption(1, foods.size() + 1);
+
+        if (input == 1) {
+            seeFridgeContentContainerType(fridge);
+        } else {
+            StringBuilder foodTypeContentOutput = new StringBuilder();
+            foodTypeContentOutput.append("\n\n");
+            FoodType searchedFoodType = foods.get(input - 2);
+
+            for (Container c : fridge.getContainers()) {
+                StringBuilder outputString = new StringBuilder();
+                outputString.append(String.format("\nHere's every %s in the %s : \n", searchedFoodType.toString().toLowerCase(), c.toString().toLowerCase()));
+                boolean foodTypeFound = false;
+                // Print container content by food type
+                for(Food food : c.getContent()) {
+                    if (food.getType() == searchedFoodType) {
+                        outputString.append(String.format("- The %s that expires the %s.\n", food.getName().toLowerCase(), food.getExpirationDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL))));
+                        foodTypeFound = true;
+                    }
+                }
+
+                if (foodTypeFound) {
+                    foodTypeContentOutput.append(outputString);
+                } else {
+                    foodTypeContentOutput.append(String.format("\nThere's no %s in the %s.\n", searchedFoodType.toString().toLowerCase(), c.toString().toLowerCase()));
+                }
+            }
+                System.out.println(foodTypeContentOutput.toString());
+        }
     }
 
     private Food createFood(FoodType type, LocalDate expirationDate, String name) {

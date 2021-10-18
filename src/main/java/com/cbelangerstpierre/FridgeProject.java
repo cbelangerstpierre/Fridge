@@ -1,14 +1,12 @@
 package com.cbelangerstpierre;
 
+import java.util.Arrays;
+
 import com.cbelangerstpierre.container.Door;
 import com.cbelangerstpierre.container.Drawer;
 import com.cbelangerstpierre.container.Freezer;
 import com.cbelangerstpierre.container.Palette;
-import com.cbelangerstpierre.food.Fruit;
 import com.cbelangerstpierre.services.InteractionService;
-
-import java.time.LocalDate;
-import java.util.Arrays;
 
 public class FridgeProject {
     public static boolean fridgeOpen = true;

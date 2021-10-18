@@ -1,7 +1,9 @@
 package com.cbelangerstpierre;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.cbelangerstpierre.container.Container;
 import com.cbelangerstpierre.container.Door;
 import com.cbelangerstpierre.container.Drawer;
 import com.cbelangerstpierre.container.Freezer;
@@ -34,5 +36,17 @@ public class Fridge {
 
     public Freezer getFreezer() {
         return this.freezer;
+    }
+
+    public ArrayList<Container> getContainers() {
+        ArrayList<Container> containers = new ArrayList<>(0);
+
+        containers.addAll(getPalettes());
+
+        containers.addAll(getDrawers());
+
+        containers.add(getDoor());
+        containers.add(getFreezer());
+        return containers;
     }
 }
