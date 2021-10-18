@@ -134,11 +134,11 @@ public class InteractionService {
                 System.out.println("\nPerfect, we will add a food in the fridge\n\n");
                 addFoodTo(fridge);
             }
-            case 2 -> seeFridgeContent(fridge);
+            case 2 -> seeFridgeContentContainerType(fridge);
         }
     }
 
-    public void seeFridgeContent(Fridge fridge) {
+    public void seeFridgeContentContainerType(Fridge fridge) {
         ArrayList<Container> containers = new ArrayList<>(0);
 
         containers.addAll(fridge.getPalettes());
@@ -155,11 +155,18 @@ public class InteractionService {
             System.out.printf("%d - See content of the %s\n", i + 2, containers.get(i).toString().toLowerCase());
 
         System.out.print("Your answer : ");
-//TODO
-//        switch (validOption(1, 2)) {
-//            case 1 -> askFoodContent();
-//            case 2 -> askContainerContent();
-//        }
+
+        int input = validOption(1, containers.size() + 1);
+
+        if (input == 1) {
+            seeFridgeContentFoodType(fridge);
+        } else {
+            System.out.println(containers.get(input - 2).getContentInfo());
+        }
+    }
+
+    private void seeFridgeContentFoodType(Fridge fridge) {
+        //TODO
     }
 
     private Food createFood(FoodType type, LocalDate expirationDate, String name) {
