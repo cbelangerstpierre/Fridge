@@ -172,7 +172,7 @@ public class InteractionService {
                     .append(selectedContainer.toString().toLowerCase())
                     .append(".");
             } else {
-                ContainerTypeContentOutput.append("\n\nHere's the content of the ").append(toString()).append(":\n");
+                ContainerTypeContentOutput.append("\n\nHere's the content of the ").append(selectedContainer.toString()).append(":\n");
                 for (Food food : selectedContainer.getContent()) {
                     ContainerTypeContentOutput.append("\n- ")
                         .append(food.getName())
@@ -231,7 +231,8 @@ public class InteractionService {
                     foodTypeContentOutput.append(String.format("\nThere's no %s in the %s.\n", searchedFoodType.toString().toLowerCase(), c.toString().toLowerCase()));
                 }
             }
-                System.out.println(foodTypeContentOutput.toString());
+            foodTypeContentOutput.append("\n");
+            System.out.println(foodTypeContentOutput.toString());
         }
     }
 
