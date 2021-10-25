@@ -1,17 +1,7 @@
 package com.cbelangerstpierre.services;
 
-import java.time.LocalDate;
-import java.time.chrono.IsoChronology;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.format.DateTimeParseException;
-import java.time.format.FormatStyle;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Scanner;
-
 import com.cbelangerstpierre.Fridge;
+import com.cbelangerstpierre.FridgeProject;
 import com.cbelangerstpierre.container.Container;
 import com.cbelangerstpierre.food.AnimalProduct;
 import com.cbelangerstpierre.food.Condiment;
@@ -22,6 +12,18 @@ import com.cbelangerstpierre.food.Grain;
 import com.cbelangerstpierre.food.Liquid;
 import com.cbelangerstpierre.food.Other;
 import com.cbelangerstpierre.food.Vegetable;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.chrono.IsoChronology;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.DateTimeParseException;
+import java.time.format.FormatStyle;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.Scanner;
 
 
 public class InteractionService {
@@ -125,7 +127,7 @@ public class InteractionService {
         return LocalDate.parse(foodExpirationDate);
     }
 
-    public void askWhatToDo(Fridge fridge) {
+    public void askWhatToDo(Fridge fridge, String SAVED_FRIDGE_PATH) throws IOException {
         System.out.println("What do you want to do? (Please enter the integer corresponding)\n");
         System.out.println("""
                 0 - Quit the program
@@ -137,7 +139,8 @@ public class InteractionService {
         switch (validOption(0, 2)) {
             case 0 -> {
                 System.out.println("\nFridge closed, see you next time.\n");
-                System.exit(0);
+                SerializeService.saveFridge(fridge, SAVED_FRIDGE_PATH);
+                FridgeProject.fridgeOpen = false;
             }
             case 1 -> {
                 System.out.println("\nPerfect, we will add a food in the fridge\n\n");
@@ -168,11 +171,17 @@ public class InteractionService {
             Container selectedContainer = containers.get(input - 2);
 
             if (selectedContainer.getContent().size() == 0) {
-                ContainerTypeContentOutput.append("\n\nThere's nothing in the ")
-                    .append(selectedContainer.toString().toLowerCase())
-                    .append(".");
+                ContainerTypeContentOutput.append("\n\nThere's nothing ");
+                if (input == 2 | input == 3 | input == 4) {
+                    ContainerTypeContentOutput.append("on");
+                } else {
+                    ContainerTypeContentOutput.append("in");
+                }
+                ContainerTypeContentOutput.append(" the ")
+                        .append(selectedContainer.toString().toLowerCase())
+                        .append(".");
             } else {
-                ContainerTypeContentOutput.append("\n\nHere's the content of the ").append(selectedContainer.toString()).append(":\n");
+                ContainerTypeContentOutput.append("\n\nHere's the content of the ").append(selectedContainer).append(":\n");
                 for (Food food : selectedContainer.getContent()) {
                     ContainerTypeContentOutput.append("\n- ")
                         .append(food.getName())
@@ -183,7 +192,7 @@ public class InteractionService {
                         .append(food.getExpirationDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)));
                 }
             }
-            System.out.println(ContainerTypeContentOutput.append("\n\n").toString());
+            System.out.println(ContainerTypeContentOutput.append("\n\n"));
         }
     }
 
@@ -198,7 +207,7 @@ public class InteractionService {
         String str = "every";
 
         for (int i = 0; i < foods.size(); i++){
-            if (foods.get(i).toString().toLowerCase() == "others") {str = "";}
+            if (foods.get(i).toString().equalsIgnoreCase("others")) {str = "";}
             System.out.printf("%d - See %s %s\n", i + 2, str, foods.get(i).toString().toLowerCase());
         }
 
@@ -215,7 +224,10 @@ public class InteractionService {
 
             for (Container c : fridge.getContainers()) {
                 StringBuilder outputString = new StringBuilder();
-                outputString.append(String.format("\nHere's every %s in the %s : \n", searchedFoodType.toString().toLowerCase(), c.toString().toLowerCase()));
+                String preposition = "in";
+                if (c.equals(fridge.getPalettes().get(0)) | c.equals(fridge.getPalettes().get(1)) | c.equals(fridge.getPalettes().get(2)))
+                    preposition = "on";
+                outputString.append(String.format("\nHere's every %s %s the %s : \n", searchedFoodType.toString().toLowerCase(), preposition, c.toString().toLowerCase()));
                 boolean foodTypeFound = false;
                 // Print container content by food type
                 for(Food food : c.getContent()) {
@@ -228,11 +240,11 @@ public class InteractionService {
                 if (foodTypeFound) {
                     foodTypeContentOutput.append(outputString);
                 } else {
-                    foodTypeContentOutput.append(String.format("\nThere's no %s in the %s.\n", searchedFoodType.toString().toLowerCase(), c.toString().toLowerCase()));
+                    foodTypeContentOutput.append(String.format("\nThere's no %s %s the %s.\n", searchedFoodType.toString().toLowerCase(), preposition, c.toString().toLowerCase()));
                 }
             }
             foodTypeContentOutput.append("\n");
-            System.out.println(foodTypeContentOutput.toString());
+            System.out.println(foodTypeContentOutput);
         }
     }
 

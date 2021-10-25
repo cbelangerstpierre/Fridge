@@ -19,5 +19,5 @@ public enum FoodType {
         return name;
     }
 
-    private String name;
+    private final String name;
 }

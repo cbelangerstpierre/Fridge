@@ -1,8 +1,9 @@
 package com.cbelangerstpierre.food;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public abstract class Food {
+public abstract class Food implements Serializable {
     private final String name;
     private final LocalDate expirationDate;
     private final FoodType type;

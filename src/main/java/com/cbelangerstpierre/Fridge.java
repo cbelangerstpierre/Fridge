@@ -1,5 +1,6 @@
 package com.cbelangerstpierre;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +11,7 @@ import com.cbelangerstpierre.container.Freezer;
 import com.cbelangerstpierre.container.Palette;
 
 
-public class Fridge {
+public class Fridge implements Serializable {
     private final List<Palette> palettes;
     private final List<Drawer> drawers;
     private final Door door;

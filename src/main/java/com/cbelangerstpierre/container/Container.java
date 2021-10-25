@@ -1,25 +1,22 @@
 package com.cbelangerstpierre.container;
 
-import java.util.ArrayList;
-
 import com.cbelangerstpierre.food.Food;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 
-public abstract class Container {
-    private String name;
 
-    public ArrayList<Food> getContent() {
-        return content;
-    }
+public abstract class Container implements Serializable {
+    private final String name;
+    private final ArrayList<Food> content = new ArrayList<>();
 
-    private ArrayList<Food> content = new ArrayList<>();
 
     public Container(String name) {
         this.name = name;
     }
 
-    public String getName() {
-        return name;
+    public ArrayList<Food> getContent() {
+        return content;
     }
 
     public void addFood(Food food) {
