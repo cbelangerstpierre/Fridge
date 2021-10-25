@@ -20,10 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.time.format.FormatStyle;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Scanner;
+import java.util.*;
 
 
 public class InteractionService {
@@ -130,9 +127,9 @@ public class InteractionService {
     public void askWhatToDo(Fridge fridge, String SAVED_FRIDGE_PATH) throws IOException {
         System.out.println("What do you want to do? (Please enter the integer corresponding)\n");
         System.out.println("""
-                0 - Quit the program
+                0 - Close the fridge
                 1 - Add a food in the fridge
-                2 - See the content of the fridge
+                2 - Remove or see the content of the fridge
                 """);
         System.out.print("Your answer : ");
 
@@ -182,17 +179,29 @@ public class InteractionService {
                         .append(".");
             } else {
                 ContainerTypeContentOutput.append("\n\nHere's the content of the ").append(selectedContainer).append(":\n");
+                int i = 1;
                 for (Food food : selectedContainer.getContent()) {
-                    ContainerTypeContentOutput.append("\n- ")
+                    ContainerTypeContentOutput.append(String.format("\n%s - ", i))
                         .append(food.getName())
                         .append(" of type '")
                         .append(food.getType())
                         .append("'")
                         .append(" that expires the ")
                         .append(food.getExpirationDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)));
+                    i++;
+                }
+
+                ContainerTypeContentOutput.append("\n\nIf you want to remove a food, please enter the integer corresponding, else, press 0.\n\n");
+                ContainerTypeContentOutput.append("Your answer : ");
+            }
+            System.out.print(ContainerTypeContentOutput);
+            if (selectedContainer.getContent().size() != 0) {
+                input = validOption(0, selectedContainer.getContent().size());
+                if (input != 0) {
+                    selectedContainer.removeFood(selectedContainer.getContent().get(input - 1));
                 }
             }
-            System.out.println(ContainerTypeContentOutput.append("\n\n"));
+            System.out.print("\n\n");
         }
     }
 
@@ -222,6 +231,12 @@ public class InteractionService {
             foodTypeContentOutput.append("\n\n");
             FoodType searchedFoodType = foods.get(input - 2);
 
+            int containerCounter = 0;
+            int foodCounter = 0;
+
+            HashMap<Integer, Container> containerCorrespondingToFoodMap = new HashMap<Integer, Container>();
+            HashMap<Integer, Food> foodToRemoveMap = new HashMap<Integer, Food>();
+
             for (Container c : fridge.getContainers()) {
                 StringBuilder outputString = new StringBuilder();
                 String preposition = "in";
@@ -230,9 +245,13 @@ public class InteractionService {
                 outputString.append(String.format("\nHere's every %s %s the %s : \n", searchedFoodType.toString().toLowerCase(), preposition, c.toString().toLowerCase()));
                 boolean foodTypeFound = false;
                 // Print container content by food type
+
                 for(Food food : c.getContent()) {
                     if (food.getType() == searchedFoodType) {
-                        outputString.append(String.format("- The %s that expires the %s.\n", food.getName().toLowerCase(), food.getExpirationDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL))));
+                        foodCounter++;
+                        containerCorrespondingToFoodMap.put(foodCounter, c);
+                        foodToRemoveMap.put(foodCounter, food);
+                        outputString.append(String.format("%s - The %s that expires the %s.\n", foodCounter, food.getName().toLowerCase(), food.getExpirationDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL))));
                         foodTypeFound = true;
                     }
                 }
@@ -242,9 +261,21 @@ public class InteractionService {
                 } else {
                     foodTypeContentOutput.append(String.format("\nThere's no %s %s the %s.\n", searchedFoodType.toString().toLowerCase(), preposition, c.toString().toLowerCase()));
                 }
+                containerCounter++;
             }
-            foodTypeContentOutput.append("\n");
-            System.out.println(foodTypeContentOutput);
+
+            if (foodCounter != 0) {
+                foodTypeContentOutput.append("\n\nIf you want to remove a food, please enter the integer corresponding, else, press 0.\n\n");
+                foodTypeContentOutput.append("Your answer : ");
+            }
+            System.out.print(foodTypeContentOutput);
+            input = validOption(0, foodCounter);
+            System.out.print("\n\n");
+            if (input != 0) {
+                Container container = containerCorrespondingToFoodMap.get(input);
+                container.removeFood(foodToRemoveMap.get(input));
+            }
+            System.out.println();
         }
     }
 
