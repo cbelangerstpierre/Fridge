@@ -2,6 +2,8 @@ package com.cbelangerstpierre.food;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.Period;
+import java.time.temporal.ChronoUnit;
 
 public abstract class Food implements Serializable {
     private final String name;
@@ -14,8 +16,48 @@ public abstract class Food implements Serializable {
         this.type = type;
     }
 
-    public static boolean isExpired(LocalDate expirationDate) {
-        return LocalDate.now().isAfter(expirationDate);
+    public boolean isExpired(Food food) {
+        return LocalDate.now().isAfter(food.expirationDate);
+    }
+
+    public String daysSinceExpired(Food food) {
+        Period p = Period.between(food.expirationDate, LocalDate.now());
+        String str = "";
+        int days = p.getDays();
+        int months = p.getMonths();
+        int years = p.getYears();
+        String dayPlural = days > 1 ? "s" : "";
+        String monthPlural = months > 1 ? "s" : "";
+        String yearPlural = years > 1 ? "s" : "";
+        if (years > 0) {
+            String strChanger = ", ";
+            if (days == 0 ^ months == 0) {
+                strChanger = " and ";
+            }
+            str += years + " year" + yearPlural + strChanger;
+            if (strChanger.equals(" and ")) {
+                if (months != 0) {
+                    str += months + " month" + monthPlural;
+                } else {
+                    str += days + " day" + dayPlural;
+                }
+
+            } else {
+                str += months + " month" + monthPlural + " and " + days + " day" + dayPlural;
+            }
+
+        } else {
+            if (months > 0 & days > 0) {
+                str += months + " month" + monthPlural + " and " + days + " day" + dayPlural;
+            } else {
+                if (months > 0) {
+                    str += months + " month" + monthPlural;
+                } else {
+                    str += days + " day" + dayPlural;
+                }
+            }
+        }
+        return str;
     }
 
     public String getName() {

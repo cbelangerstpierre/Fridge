@@ -14,7 +14,9 @@ import com.cbelangerstpierre.food.Other;
 import com.cbelangerstpierre.food.Vegetable;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.chrono.IsoChronology;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -185,9 +187,13 @@ public class InteractionService {
                         .append(food.getName())
                         .append(" of type '")
                         .append(food.getType())
-                        .append("'")
-                        .append(" that expires the ")
-                        .append(food.getExpirationDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)));
+                        .append("'");
+                    if (food.isExpired(food)) {
+                        ContainerTypeContentOutput.append(String.format(" that has been expired for %s.", food.daysSinceExpired(food)));
+                    } else {
+                        ContainerTypeContentOutput.append(" that expires the ")
+                                .append(String.format("%s.", food.getExpirationDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL))));
+                    }
                     i++;
                 }
 
@@ -231,18 +237,17 @@ public class InteractionService {
             foodTypeContentOutput.append("\n\n");
             FoodType searchedFoodType = foods.get(input - 2);
 
-            int containerCounter = 0;
             int foodCounter = 0;
 
-            HashMap<Integer, Container> containerCorrespondingToFoodMap = new HashMap<Integer, Container>();
-            HashMap<Integer, Food> foodToRemoveMap = new HashMap<Integer, Food>();
+            HashMap<Integer, Container> containerCorrespondingToFoodMap = new HashMap<>();
+            HashMap<Integer, Food> foodToRemoveMap = new HashMap<>();
 
             for (Container c : fridge.getContainers()) {
                 StringBuilder outputString = new StringBuilder();
                 String preposition = "in";
                 if (c.equals(fridge.getPalettes().get(0)) | c.equals(fridge.getPalettes().get(1)) | c.equals(fridge.getPalettes().get(2)))
                     preposition = "on";
-                outputString.append(String.format("\nHere's every %s %s the %s : \n", searchedFoodType.toString().toLowerCase(), preposition, c.toString().toLowerCase()));
+                outputString.append(String.format("\n\nHere's every %s %s the %s : \n", searchedFoodType.toString().toLowerCase(), preposition, c.toString().toLowerCase()));
                 boolean foodTypeFound = false;
                 // Print container content by food type
 
@@ -251,7 +256,12 @@ public class InteractionService {
                         foodCounter++;
                         containerCorrespondingToFoodMap.put(foodCounter, c);
                         foodToRemoveMap.put(foodCounter, food);
-                        outputString.append(String.format("%s - The %s that expires the %s.\n", foodCounter, food.getName().toLowerCase(), food.getExpirationDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL))));
+                        outputString.append(String.format("%s - The %s that ", foodCounter, food.getName().toLowerCase()));
+                        if (food.isExpired(food)) {
+                            outputString.append(String.format("has been expired for %s.", food.daysSinceExpired(food)));
+                        } else {
+                            outputString.append(String.format("expires the %s.\n", food.getExpirationDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL))));
+                        }
                         foodTypeFound = true;
                     }
                 }
@@ -259,23 +269,23 @@ public class InteractionService {
                 if (foodTypeFound) {
                     foodTypeContentOutput.append(outputString);
                 } else {
-                    foodTypeContentOutput.append(String.format("\nThere's no %s %s the %s.\n", searchedFoodType.toString().toLowerCase(), preposition, c.toString().toLowerCase()));
+                    foodTypeContentOutput.append(String.format("\n\nThere's no %s %s the %s.", searchedFoodType.toString().toLowerCase(), preposition, c.toString().toLowerCase()));
                 }
-                containerCounter++;
             }
 
             if (foodCounter != 0) {
-                foodTypeContentOutput.append("\n\nIf you want to remove a food, please enter the integer corresponding, else, press 0.\n\n");
+                foodTypeContentOutput.append("\n\n\nIf you want to remove a food, please enter the integer corresponding, else, press 0.\n\n");
                 foodTypeContentOutput.append("Your answer : ");
+                System.out.print(foodTypeContentOutput);
+                input = validOption(0, foodCounter);
+                if (input != 0) {
+                    Container container = containerCorrespondingToFoodMap.get(input);
+                    container.removeFood(foodToRemoveMap.get(input));
+                }
+            } else {
+                System.out.print(foodTypeContentOutput);
             }
-            System.out.print(foodTypeContentOutput);
-            input = validOption(0, foodCounter);
-            System.out.print("\n\n");
-            if (input != 0) {
-                Container container = containerCorrespondingToFoodMap.get(input);
-                container.removeFood(foodToRemoveMap.get(input));
-            }
-            System.out.println();
+            System.out.println("\n\n");
         }
     }
 
