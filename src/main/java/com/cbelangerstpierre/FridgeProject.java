@@ -20,7 +20,7 @@ public class FridgeProject {
         Fridge fridge;
 
         File f = new File(SAVED_FRIDGE_PATH);
-        if(f.exists() && !f.isDirectory()) {
+        if (f.exists() && !f.isDirectory()) {
             fridge = SerializeService.loadFridge(SAVED_FRIDGE_PATH);
         } else {
             fridge = new Fridge(

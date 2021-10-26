@@ -1,6 +1,8 @@
 package com.cbelangerstpierre.food;
 
-public enum FoodType {
+import java.io.Serializable;
+
+public enum FoodType implements Serializable {
     AnimalProduct("Animal product"),
     Condiment("Condiment"),
     Fruit("Fruit"),

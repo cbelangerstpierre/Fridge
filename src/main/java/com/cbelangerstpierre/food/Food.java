@@ -3,7 +3,6 @@ package com.cbelangerstpierre.food;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.Period;
-import java.time.temporal.ChronoUnit;
 
 public abstract class Food implements Serializable {
     private final String name;

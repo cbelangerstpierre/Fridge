@@ -2,7 +2,7 @@ package com.cbelangerstpierre.services;
 
 import com.cbelangerstpierre.Fridge;
 import com.cbelangerstpierre.FridgeProject;
-import com.cbelangerstpierre.container.Container;
+import com.cbelangerstpierre.container.*;
 import com.cbelangerstpierre.food.AnimalProduct;
 import com.cbelangerstpierre.food.Condiment;
 import com.cbelangerstpierre.food.Food;
@@ -13,24 +13,39 @@ import com.cbelangerstpierre.food.Liquid;
 import com.cbelangerstpierre.food.Other;
 import com.cbelangerstpierre.food.Vegetable;
 
+import java.io.File;
 import java.io.IOException;
-import java.time.Duration;
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.chrono.IsoChronology;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.time.format.FormatStyle;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Scanner;
 
 
 public class InteractionService {
     private final Scanner scanner = new Scanner(System.in);
+    String SAVED_FOOD_TYPE_DATA_PATH = "foodTypeData.properties";
+    HashMap<String, FoodType> foodTypeDataBase;
+    private final File f = new File(SAVED_FOOD_TYPE_DATA_PATH);
+    
+    public InteractionService() throws IOException, ClassNotFoundException {
+        if (f.exists() && !f.isDirectory()) {
+            foodTypeDataBase = SerializeService.loadFoodTypeDataBase(SAVED_FOOD_TYPE_DATA_PATH);
+        } else {
+            foodTypeDataBase = new HashMap<>();
+        }
+    }
 
     public void addFoodTo(Fridge fridge) {
         String foodName = askFoodName();
-        FoodType foodType = askFoodType();
+        FoodType foodType = askFoodType(foodName.toLowerCase());
+        foodTypeDataBase.put(foodName.toLowerCase(), foodType);
         LocalDate foodExpirationDate = askFoodExpirationDate();
         Food food = createFood(foodType, foodExpirationDate, foodName);
 
@@ -67,25 +82,32 @@ public class InteractionService {
         return c;
     }
 
-    private FoodType askFoodType() {
-        System.out.println("\n\nWhich type of food is it? (Please enter the integer corresponding)\n");
+    private FoodType askFoodType(String foodName) {
+        FoodType ft;
 
-        for (int i = 0; i < FoodType.values().length; i++)
-            System.out.printf("%d - %s\n", i + 1, FoodType.values()[i]);
-        System.out.print("\nYour answer : ");
-        FoodType ft = FoodType.values()[validOption(1, FoodType.values().length) - 1];
+        if (!foodTypeDataBase.containsKey(foodName)) {
+            System.out.println("\n\nWhich type of food is it? (Please enter the integer corresponding)\n");
 
-        String str;
-        String str2 = "";
-        if (ft.equals(FoodType.Other) | ft.equals(FoodType.AnimalProduct)) {
-            str = "an";
-            if (ft.equals(FoodType.Other)) {
-                str2 = " type";
+            for (int i = 0; i < FoodType.values().length; i++)
+                System.out.printf("%d - %s\n", i + 1, FoodType.values()[i]);
+            System.out.print("\nYour answer : ");
+            ft = FoodType.values()[validOption(1, FoodType.values().length) - 1];
+
+            String str;
+            String str2 = "";
+            if (ft.equals(FoodType.Other) | ft.equals(FoodType.AnimalProduct)) {
+                str = "an";
+                if (ft.equals(FoodType.Other)) {
+                    str2 = " type";
+                }
+            } else {
+                str = "a";
             }
+            System.out.printf("\nYour food is %s " + ft.toString().toLowerCase() + "%s.\n\n\n", str, str2);
         } else {
-            str = "a";
+            ft = foodTypeDataBase.get(foodName);
+            System.out.println();
         }
-        System.out.printf("\nYour food is %s " + ft.toString().toLowerCase() + "%s.\n\n\n", str, str2);
 
         return ft;
     }
@@ -139,6 +161,7 @@ public class InteractionService {
             case 0 -> {
                 System.out.println("\nFridge closed, see you next time.\n");
                 SerializeService.saveFridge(fridge, SAVED_FRIDGE_PATH);
+                SerializeService.saveFoodTypeDataBase(foodTypeDataBase, SAVED_FOOD_TYPE_DATA_PATH);
                 FridgeProject.fridgeOpen = false;
             }
             case 1 -> {
@@ -258,7 +281,7 @@ public class InteractionService {
                         foodToRemoveMap.put(foodCounter, food);
                         outputString.append(String.format("%s - The %s that ", foodCounter, food.getName().toLowerCase()));
                         if (food.isExpired(food)) {
-                            outputString.append(String.format("has been expired for %s.", food.daysSinceExpired(food)));
+                            outputString.append(String.format("has been expired for %s.\n", food.daysSinceExpired(food)));
                         } else {
                             outputString.append(String.format("expires the %s.\n", food.getExpirationDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL))));
                         }
