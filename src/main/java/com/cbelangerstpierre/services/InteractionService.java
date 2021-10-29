@@ -142,10 +142,8 @@ public class InteractionService {
             }
         } while (validDate == null);
 
-        System.out.println("The expiration date is the " + LocalDate.parse(foodExpirationDate).format(DateTimeFormatter
-                .ofLocalizedDate(FormatStyle.FULL)
-                .withLocale(userLocale)) + ".\n\n");
-        return LocalDate.parse(foodExpirationDate);
+        System.out.println("The expiration date is the " + validDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).withLocale(userLocale)) + ".\n\n");
+        return validDate;
     }
 
     public void askWhatToDo(Fridge fridge, String SAVED_FRIDGE_PATH) throws IOException {
