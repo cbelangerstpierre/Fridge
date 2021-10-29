@@ -205,16 +205,11 @@ public class InteractionService {
                 ContainerTypeContentOutput.append("\n\nHere's the content of the ").append(selectedContainer).append(":\n");
                 int i = 1;
                 for (Food food : selectedContainer.getContent()) {
-                    ContainerTypeContentOutput.append(String.format("\n%s - ", i))
-                        .append(food.getName())
-                        .append(" of type '")
-                        .append(food.getType())
-                        .append("'");
+                    ContainerTypeContentOutput.append(String.format("\n%s - %s of type '%s'", i, food.getName(), food.getType()));
                     if (food.isExpired(food)) {
                         ContainerTypeContentOutput.append(String.format(" that has been expired for %s.", food.daysSinceExpired(food)));
                     } else {
-                        ContainerTypeContentOutput.append(" that expires the ")
-                                .append(String.format("%s.", food.getExpirationDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL))));
+                        ContainerTypeContentOutput.append(String.format(" that expires the %s.", food.getExpirationDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL))));
                     }
                     i++;
                 }
@@ -260,9 +255,7 @@ public class InteractionService {
             FoodType searchedFoodType = foods.get(input - 2);
 
             int foodCounter = 0;
-
-            HashMap<Integer, Container> containerCorrespondingToFoodMap = new HashMap<>();
-            HashMap<Integer, Food> foodToRemoveMap = new HashMap<>();
+            ArrayList<Food> foodToRemoveMap = new ArrayList<>();
 
             for (Container c : fridge.getContainers()) {
                 StringBuilder outputString = new StringBuilder();
@@ -276,8 +269,7 @@ public class InteractionService {
                 for(Food food : c.getContent()) {
                     if (food.getType() == searchedFoodType) {
                         foodCounter++;
-                        containerCorrespondingToFoodMap.put(foodCounter, c);
-                        foodToRemoveMap.put(foodCounter, food);
+                        foodToRemoveMap.add(food);
                         outputString.append(String.format("%s - The %s that ", foodCounter, food.getName().toLowerCase()));
                         if (food.isExpired(food)) {
                             outputString.append(String.format("has been expired for %s.\n", food.daysSinceExpired(food)));
@@ -301,8 +293,8 @@ public class InteractionService {
                 System.out.print(foodTypeContentOutput);
                 input = validOption(0, foodCounter);
                 if (input != 0) {
-                    Container container = containerCorrespondingToFoodMap.get(input);
-                    container.removeFood(foodToRemoveMap.get(input));
+                    for (Container container : fridge.getContainers())
+                        container.removeFood(foodToRemoveMap.get(input - 1));
                 }
             } else {
                 System.out.print(foodTypeContentOutput);

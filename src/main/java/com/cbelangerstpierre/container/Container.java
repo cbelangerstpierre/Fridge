@@ -20,13 +20,13 @@ public abstract class Container implements Serializable {
     }
 
     public void addFood(Food food) {
-        content.add(food);
-        System.out.println("\n---Food added to the fridge---\n\n\n");
+        if (content.add(food))
+            System.out.println("\n---Food added to the fridge---\n\n\n");
     }
 
     public void removeFood(Food food) {
-        content.remove(food);
-        System.out.println("\n---Food removed from the fridge---\n\n\n");
+        if (content.remove(food))
+            System.out.println("\n---Food removed from the fridge---\n\n\n");
     }
 
     @Override
