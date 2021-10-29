@@ -5,6 +5,8 @@ bin
 .project
 .settings
 .classpath
+foodTypeData.properties
+FridgeInfo.ser
 
 # Ignore Gradle project-specific cache directory
 .gradle
