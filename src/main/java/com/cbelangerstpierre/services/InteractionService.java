@@ -30,11 +30,12 @@ import java.util.Scanner;
 
 public class InteractionService {
     private final Scanner scanner = new Scanner(System.in);
-    String SAVED_FOOD_TYPE_DATA_PATH = "foodTypeData.properties";
-    HashMap<String, FoodType> foodTypeDataBase;
-    private final File f = new File(SAVED_FOOD_TYPE_DATA_PATH);
+    private final String SAVED_FOOD_TYPE_DATA_PATH = "foodTypeData.properties";
+    private HashMap<String, FoodType> foodTypeDataBase;
     
     public InteractionService() throws IOException, ClassNotFoundException {
+        File f = new File(SAVED_FOOD_TYPE_DATA_PATH);
+
         if (f.exists() && !f.isDirectory()) {
             foodTypeDataBase = SerializeService.loadFoodTypeDataBase(SAVED_FOOD_TYPE_DATA_PATH);
         } else {
